@@ -5,6 +5,7 @@ const dbPath = path.join(__dirname, "..", "db.sqlite");
 const db = new sqlite3.Database(dbPath);
 
 db.serialize(() => {
+  // Create Users table
   db.run(`
     CREATE TABLE IF NOT EXISTS Users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,6 +13,18 @@ db.serialize(() => {
       fullName TEXT NOT NULL,
       passwordHash TEXT NOT NULL,
       createdAt TEXT NOT NULL
+    )
+  `);
+
+  // Create Favorites table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS favorites (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      video_id TEXT,
+      title TEXT,
+      thumbnail TEXT,
+      FOREIGN KEY(user_id) REFERENCES Users(id)
     )
   `);
 });
