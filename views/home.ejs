@@ -1,23 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Home</title>
-  <style>
-    body { font-family: Arial; max-width: 700px; margin: 40px auto; }
-    input { display:block; margin: 8px 0; padding: 8px; width: 100%; }
-    button { padding: 10px 14px; cursor: pointer; }
-    .box { border: 1px solid #ddd; padding: 16px; border-radius: 8px; }
-  </style>
-</head>
-<body>
-<div class="box">
-  <h2>Home</h2>
-
-  <p>Welcome, <b><%= user.fullName %></b> (<%= user.email %>)</p>
-
-  <form method="POST" action="/logout">
-    <button type="submit">Logout</button>
-  </form>
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 text-center">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-5">
+                <h1 class="display-4 text-primary mb-3">Welcome Back!</h1>
+                <h3 class="mb-4"><%= user.fullName %></h3>
+                <p class="lead text-muted">Ready to find some new music?</p>
+                
+                <a href="/favorites" class="btn btn-primary btn-lg px-5 mt-3 rounded-pill">
+                    <i class="bi bi-search"></i> Search Videos
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
-</body>
-</html>

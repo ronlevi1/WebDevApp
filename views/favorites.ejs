@@ -1,0 +1,147 @@
+<div class="row justify-content-center mb-5">
+    <div class="col-md-10">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h4 class="mb-3"><i class="bi bi-youtube text-danger"></i> Search New Videos</h4>
+                <form action="/favorites" method="GET" class="d-flex gap-2">
+                    <input type="text" name="search" class="form-control form-control-lg" placeholder="Search song or artist..." value="<%= searchQuery %>" required>
+                    <button type="submit" class="btn btn-danger btn-lg px-4">Search</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% if (searchResults && searchResults.length > 0) { %>
+    <div class="d-flex align-items-center mb-3">
+        <h3 class="me-2">Results for "<%= searchQuery %>"</h3>
+        <hr class="flex-grow-1">
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        <% searchResults.forEach(item => { %>
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0">
+                    
+                    <div class="position-relative" style="cursor: pointer;" onclick="playVideo('<%= item.id.videoId %>', '<%= item.snippet.title %>')">
+                        <img src="<%= item.snippet.thumbnails.medium.url %>" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <i class="bi bi-play-circle-fill text-white display-1" style="opacity: 0.8;"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title fw-bold"><%= item.snippet.title %></h6>
+                        
+                        <form action="/favorites/add" method="POST" class="mt-auto pt-3">
+                            <input type="hidden" name="videoId" value="<%= item.id.videoId %>">
+                            <input type="hidden" name="title" value="<%= item.snippet.title %>">
+                            <input type="hidden" name="thumbnail" value="<%= item.snippet.thumbnails.medium.url %>">
+                            <button class="btn btn-outline-primary w-100">
+                                <i class="bi bi-heart"></i> Add to Favorites
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<div class="d-flex align-items-center mb-4 mt-5">
+    <h3 class="text-warning me-2"><i class="bi bi-star-fill"></i> My Library</h3>
+    <span class="badge bg-secondary rounded-pill"><%= favorites.length %></span>
+    <hr class="flex-grow-1 ms-3">
+</div>
+
+<% if (favorites.length === 0) { %>
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-music-note-list display-1 mb-3 d-block" style="opacity: 0.2"></i>
+        <p class="fs-5">Your library is empty. Search for videos above!</p>
+    </div>
+<% } else { %>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+        <% favorites.forEach(video => { %>
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm position-relative">
+                    
+                    <div class="position-relative" style="cursor: pointer;" onclick="playVideo('<%= video.video_id %>', '<%= video.title %>')">
+                        <img src="<%= video.thumbnail %>" class="card-img-top rounded-top">
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <i class="bi bi-play-circle-fill text-white display-4" style="opacity: 0.8;"></i>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <p class="card-text small fw-bold text-truncate mb-3"><%= video.title %></p>
+                        
+                        <form action="/favorites/remove" method="POST">
+                            <input type="hidden" name="id" value="<%= video.id %>">
+                            <button class="btn btn-danger btn-sm w-100 opacity-75 hover-opacity-100">
+                                <i class="bi bi-trash"></i> Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } %>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-white" id="videoTitle">Playing Video</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="stopVideo()"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9">
+                    <iframe id="youtubeFrame" src="" title="YouTube video" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to handle video playback when an image is clicked
+    function playVideo(videoId, title) {
+        // 1. Fetch elements dynamically inside the function to avoid initialization errors
+        const iframeElement = document.getElementById('youtubeFrame');
+        const titleElement = document.getElementById('videoTitle');
+        const modalElement = document.getElementById('videoModal');
+
+        // 2. Check if elements exist before using them
+        if (iframeElement && titleElement && modalElement) {
+            // Set the iframe source to the selected video with autoplay
+            iframeElement.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+            
+            // Update the modal title
+            titleElement.textContent = title;
+            
+            // Initialize and show the Bootstrap Modal
+            const modalInstance = new bootstrap.Modal(modalElement);
+            modalInstance.show();
+        } else {
+            console.error("Error: Video elements not found in the DOM.");
+        }
+    }
+
+    // Function to stop the video when the modal closes
+    function stopVideo() {
+        const iframeElement = document.getElementById('youtubeFrame');
+        if (iframeElement) {
+            iframeElement.src = ""; // Clear source to stop playback
+        }
+    }
+
+    // Attach event listener when the DOM is fully loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalElement = document.getElementById('videoModal');
+        // Ensure video stops even if the user clicks outside the modal
+        if (modalElement) {
+            modalElement.addEventListener('hidden.bs.modal', stopVideo);
+        }
+    });
+</script>
