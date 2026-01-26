@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon app.js",
-    "start": "node src /app.js"
+    "start": "node create_table.js && node app.js"
   },
   "keywords": [],
   "author": "",
